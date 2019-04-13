@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { withStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
@@ -12,16 +13,36 @@ import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+import Button from '@material-ui/core/Button';
+
+const styles = theme => ({
+  h6: {
+    padding: "20px"
+  },
+  saveButton: {
+    marginRight: "10px"
+  }
+});
 
 function Sidebar(props) {
+  const {classes, drawerDisplaying, setDrawerDisplaying} = props;
+  
+  const [taskName, setTaskName] = useState("");
+  const [isInputError, setInputError] = useState(false)
   const [selectedPriority, setPriority] = useState("Срочная важная задача");
   const [taskStatus, setStatus] = useState("Выполняется");
-  const [taskTag, setTaskTag] = useState("тег0");
+  const [taskTag, setTaskTag] = useState("Тег0");
+
+  const handleSubmit = () => {
+    if(!taskName) {
+      setInputError(true);
+    }
+  }
 
   const sideList = (
     <List>
       <ListItem key="task-name">
-        <TextField label="Название задачи" />
+        <TextField error={isInputError} value={taskName} onChange={(e)=>setTaskName(e.target.value)} label="Название задачи" />
       </ListItem>
       <ListItem key="task-description">
         <TextField multiline={true} label="Описание задачи" />
@@ -85,28 +106,43 @@ function Sidebar(props) {
       </form>
       </ListItem>
       <ListItem key="task-tag">
-
+        <form autoComplete="on">
+          <FormControl>
+            <InputLabel htmlFor="">Тег</InputLabel>
+            <Select
+              value={taskTag}
+              onChange={(e)=> setTaskTag(e.target.value)}
+              inputProps={{
+                name: 'tag-select',
+                id: 'tag-select',
+              }}
+            >
+              <MenuItem value="Тег0">Тег0</MenuItem>
+              <MenuItem value="Тег1">Тег1</MenuItem>
+              <MenuItem value="Тег2">Тег2</MenuItem>
+              <MenuItem value="Тег3">Тег3</MenuItem>
+            </Select>
+          </FormControl>
+        </form>
+      </ListItem>
+      <ListItem key="save-cancel">
+        <Button className={classes.saveButton} onClick={()=>handleSubmit()} variant="contained" color="primary">Сохранить</Button>
+        <Button variant="contained" color="secondary" onClick={()=>setDrawerDisplaying(false)}>
+          Отмена
+        </Button>
       </ListItem>
   </List>
   );
 
-  const {drawerDisplaying, setDrawerDisplaying} = props;
-
   return (
     <Drawer open={drawerDisplaying} onClose={()=>setDrawerDisplaying(false)}>
-      <div
-        tabIndex={0}
-        role="button"
-        onClick={()=>setDrawerDisplaying(true)}
-        onKeyDown={()=>setDrawerDisplaying(true)}
-      >
-        <Typography variant="h6" color="inherit">Новая задача</Typography>
+      <div tabIndex={0} role="button">
+        <Typography className={classes.h6} variant="h6" color="inherit">Новая задача</Typography>
         <Divider />
         {sideList}
       </div>
     </Drawer>
   )
-
 }
 
-export default Sidebar;
+export default withStyles(styles)(Sidebar);
